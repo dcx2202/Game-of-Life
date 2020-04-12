@@ -1,13 +1,14 @@
 
 let width
 let height
-let cellSize = 100
+let cellSize = 5
 let cols
 let rows
 let cells
 
 function setup()
 {
+    //frameRate(10)
     width = window.innerWidth - 20
     height = window.innerHeight - 20
     createCanvas(width, height)
@@ -33,7 +34,15 @@ function setup()
 
 function calculateCells()
 {
-    let newCells = cells
+    let newCells = []
+
+    for(var j = 0; j < rows; j++)
+    {
+        row = []
+        for(var i = 0; i < cols; i++)
+            row.push(0)
+            newCells.push(row)
+    }
 
     for(var j = 0; j < rows; j++)
     {
@@ -45,6 +54,8 @@ function calculateCells()
                 newCells[j][i] = 0
             else if(cells[j][i] == 0 && numNeighbours == 3)
                 newCells[j][i] = 1
+            else
+                newCells[j][i] = cells[j][i]
         }
     }
 
@@ -59,18 +70,34 @@ function calculateNeighbours(j, i)
     {
         for(var x = i - 1; x <= i + 1; x++)
         {
-            if(y >= cols || y < 0 || x >= rows || x < 0)
+            if(y >= rows || y < 0 || x >= cols || x < 0)
                 continue
             
-            if(cells[y][x] == 1)
-                numNeighbours++
+            numNeighbours += cells[y][x]
         }
     }
 
-    if(cells[j][i] == 1)
-        numNeighbours--
+    numNeighbours -= cells[j][i]
 
     return numNeighbours
+}
+
+function turnCellOn()
+{
+    x = floor((mouseX * cols) / width)
+    y = floor((mouseY * rows) / height)
+
+    cells[y][x] = 1
+}
+
+function mousePressed()
+{
+    turnCellOn()
+}
+
+function mouseDragged()
+{
+    turnCellOn()
 }
 
 function draw()
@@ -79,14 +106,14 @@ function draw()
     fill(0)
     rect(0, 0, cols * cellSize, rows * cellSize)
 
-    for(var j = 0; j < rows; j++)
+    for(var j = 0; j < cells.length; j++)
     {
-        for(var i = 0; i < cols; i++)
-        {
+        for(var i = 0; i < cells[j].length; i++)
+        {        
             if(cells[j][i] == 1)
             {
                 fill(255, 255, 0)
-                rect(i * cellSize, j * cellSize, i * cellSize + cellSize, j * cellSize + cellSize)
+                rect(i * cellSize, j * cellSize, cellSize, cellSize)
             }
         }
     }
@@ -100,5 +127,5 @@ function draw()
     for(var i = 0; i <= height; i += cellSize)
         line(0, i, cols * cellSize, i)
     
-    //calculateCells()
+    calculateCells()
 }
